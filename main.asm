@@ -5,7 +5,7 @@ title: .asciiz "____Bienvenido____\n"
 complete: .asciiz "WE DID IT!!!!\n"
 error: .asciiz "ERRORRRR\n"
 back: .asciiz "WE ARE BACK OF THE VALIDATION\n"
-out: .asciiz "WE ARE OUTTTTT OF THE VALIDATION\n"
+out: .asciiz "FINISHING THE ENTRY OF THE INPUT.......\n"
 zeroFloat: .float 0.0
 
 fiveCents: .float 0.05
@@ -13,6 +13,7 @@ tenCents: .float 0.1
 quarterDollar: .float 0.25
 halfDollar: .float 0.5
 oneDollar: .float 1.0
+close: .float -1.0
 .text
 .globl main
 
@@ -73,6 +74,7 @@ validation:
 	lwc1 $f3,quarterDollar
 	lwc1 $f4,halfDollar
 	lwc1 $f5,oneDollar
+	lwc1 $f6,close
 	
 	#It is only a print for DEBUGGING
 	li $v0,4
@@ -82,6 +84,12 @@ validation:
 	#Save the PC on the stack
 	addi $sp,$sp,-4
 	sw $ra,0($sp)
+	
+	#Compare if the input by the user is the equal to -1 to end the input
+	c.eq.s $f0, $f6    # $f0 == $f6?
+	bc1t end_input          # if true, branch to the label called "end_input"
+	
+	#When input != $f6 or -1
 	
 	#Compare if the input by the user is the equal to fiveCent
 	c.eq.s $f0, $f1    # $f0 == $f1?
@@ -106,8 +114,8 @@ validation:
 						li $v0,4
 						la $a0,error
 						syscall
-						#Maybe change the value of $v0 to know what happened
-						#li $v0,0
+						#Change the value of $v0=0 which means a invalid entry
+						li $v0,0
 	
 	#Restart the pointer $sp
 	lw $ra,0($sp)
@@ -120,12 +128,21 @@ return:
 	li $v0,4
 	la $a0,complete
 	syscall
-	#Maybe change the value of $v0 to know what happened
-	#li $v0,1
+	#Change the value of $v0=0 which means a invalid entry
+	li $v0,1
 	
 	#Return
 	jr $ra
-	
+
+end_input:
+	#It is only a print for DEBUGGING
+	li $v0,4
+	la $a0,out
+	syscall
+	#change the value of $v0=2 which means end the entry of the input
+	li $v0,2
+	#Return
+	jr $ra
 exit: 
 	li $v0,10
 	syscall
