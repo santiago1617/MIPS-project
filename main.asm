@@ -1,6 +1,6 @@
 .data
 message: .asciiz "Ingrese monedas: "
-test: .asciiz "You are in main"
+test: .asciiz "You are in main\n"
 title: .asciiz "____Bienvenido____\n"
 complete: .asciiz "WE DID IT!!!!\n"
 error: .asciiz "ERRORRRR\n"
@@ -21,14 +21,16 @@ main:
 	li $v0,4
 	la $a0,title
 	syscall
-	
+	#Go to the "input" function or label
 	jal input
 	
+	#It is only a print for DEBUGGING
 	li $v0,4
 	la $a0,test
 	syscall 
 	
-	li $v0,2
+	#Display value
+	li $v0,2 # 2 is the code to display a float in $f12
 	#add.s $f12,$f0,$f4
 	syscall
 	j exit
@@ -52,13 +54,9 @@ input: #The float number always will be in $f12
 	
 	jal validation
 	
-	#li $v0,4
-	#la $a0,out
-	#syscall
-	
+	#Restart the $f4 value to 0.0
 	lwc1 $f4,zeroFloat
-	#Display value
-	#li $v0,2 # 2 is the code to display a float
+	#Move $f12-> $f0 + $f4
 	add.s $f12,$f0,$f4
 	
 	#Restart the pointer $sp
@@ -108,8 +106,8 @@ validation:
 						li $v0,4
 						la $a0,error
 						syscall
-	
-	#li $v0,0
+						#Maybe change the value of $v0 to know what happened
+						#li $v0,0
 	
 	#Restart the pointer $sp
 	lw $ra,0($sp)
@@ -118,11 +116,14 @@ validation:
 	jr $ra
 	
 return:
+	#It is only a print for DEBUGGING
 	li $v0,4
 	la $a0,complete
 	syscall
+	#Maybe change the value of $v0 to know what happened
+	#li $v0,1
 	
-	li $v0,1
+	#Return
 	jr $ra
 	
 exit: 
