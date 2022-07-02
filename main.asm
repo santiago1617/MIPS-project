@@ -10,9 +10,9 @@ zeroFloat: .float 0.0
 
 fiveCents: .float 0.05
 tenCents: .float 0.1
-quarterDolar: .float 0.25
-halfDolar: .float 0.5
-oneDolar: .float 1.0
+quarterDollar: .float 0.25
+halfDollar: .float 0.5
+oneDollar: .float 1.0
 .text
 .globl main
 
@@ -48,7 +48,6 @@ input: #The float number always will be in $f12
 	addi $sp,$sp,-4
 	sw $ra,0($sp)
 	
-	
 	#Enter in validation
 	
 	jal validation
@@ -65,16 +64,17 @@ input: #The float number always will be in $f12
 	#Restart the pointer $sp
 	lw $ra,0($sp)
 	addi $sp,$sp,4
-	#Then come back
+	#Then we return
 	jr $ra
 	
 	
 validation: 
+	#Have in mind that the input of the user is in $f0
 	lwc1 $f1,fiveCents
 	lwc1 $f2,tenCents
-	lwc1 $f3,quarterDolar
-	lwc1 $f5,halfDolar
-	lwc1 $f6,oneDolar
+	lwc1 $f3,quarterDollar
+	lwc1 $f4,halfDollar
+	lwc1 $f5,oneDollar
 	
 	#It is only a print for DEBUGGING
 	li $v0,4
@@ -88,17 +88,33 @@ validation:
 	#Compare if the input by the user is the equal to fiveCent
 	c.eq.s $f0, $f1    # $f0 == $f1?
 	bc1t return          # if true, branch to the label called "return"
-	#It is the case that the input is not == to 0.005 (fiveCent)
-	li $v0,4
-	la $a0,error
-	syscall
+	#It is the case that the input is not == to 0.005 (fiveCent) or $f1
+		#Comparation with 0.10 (tenCents)
+		c.eq.s $f0, $f2    # $f0 == $f2?
+		bc1t return          # if true, branch to the label called "return"
+		#When input != $f2
+			#Comparation with 0.25(quarterDollar)
+			c.eq.s $f0, $f3    # $f0 == $f3?
+			bc1t return          # if true, branch to the label called "return"
+			#When input != $f3
+				#Comparation with 0.50 (halfDolar)
+				c.eq.s $f0, $f4    # $f0 == $f4?
+				bc1t return          # if true, branch to the label called "return"
+				#When input!= $f4
+					#Comparation with 1.00 (oneDollar)
+					c.eq.s $f0, $f5    # $f0 == $f5?
+					bc1t return          # if true, branch to the label called "return"
+					#When input!= $f5
+						li $v0,4
+						la $a0,error
+						syscall
 	
 	#li $v0,0
 	
 	#Restart the pointer $sp
 	lw $ra,0($sp)
 	addi $sp,$sp,4
-	
+	#Return 
 	jr $ra
 	
 return:
