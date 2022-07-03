@@ -1,15 +1,16 @@
 .data
 message: .asciiz "Ingrese monedas: "
+#messageError: .asciiz "Mensaje de error"
 test: .asciiz "You are in main\n"
 title: .asciiz "____Bienvenido____\n"
 complete: .asciiz "WE DID IT!!!!\n"
 error: .asciiz "ERRORRRR\n"
 back: .asciiz "WE ARE BACK OF THE VALIDATION\n"
 out: .asciiz "FINISHING THE ENTRY OF THE INPUT.......\n"
-zeroFloat: .float 0.0
 
+zeroFloat: .float 0.0
 fiveCents: .float 0.05
-tenCents: .float 0.1
+tenCents: .float 0.10
 quarterDollar: .float 0.25
 halfDollar: .float 0.5
 oneDollar: .float 1.0
@@ -23,7 +24,7 @@ main:
 	la $a0,title
 	syscall
 	#Go to the "input" function or label
-	jal input
+	jal input 
 	
 	#It is only a print for DEBUGGING
 	li $v0,4
@@ -37,7 +38,7 @@ main:
 	j exit
 	
 
-input: #The float number always will be in $f12
+input: #The float number always will be in $f12 which we gonna print
 	
 	#Display message
 	li $v0,4
@@ -56,9 +57,9 @@ input: #The float number always will be in $f12
 	jal validation
 	
 	#Restart the $f4 value to 0.0
-	lwc1 $f4,zeroFloat
+	lwc1 $f4,zeroFloat # lwcl -> li ponerle un valor predefinido
 	#Move $f12-> $f0 + $f4
-	add.s $f12,$f0,$f4
+	add.s $f12,$f0,zeroFloat
 	
 	#Restart the pointer $sp
 	lw $ra,0($sp)
@@ -114,8 +115,8 @@ validation:
 						li $v0,4
 						la $a0,error
 						syscall
-						#Change the value of $v0=0 which means a invalid entry
-						li $v0,0
+						#Change the value of $v1=0 which means a invalid entry
+						li $v1,0
 	
 	#Restart the pointer $sp
 	lw $ra,0($sp)
@@ -128,8 +129,8 @@ return:
 	li $v0,4
 	la $a0,complete
 	syscall
-	#Change the value of $v0=0 which means a invalid entry
-	li $v0,1
+	#Change the value of $v1=0 which means a invalid entry
+	li $v1,1
 	
 	#Return
 	jr $ra
@@ -139,8 +140,8 @@ end_input:
 	li $v0,4
 	la $a0,out
 	syscall
-	#change the value of $v0=2 which means end the entry of the input
-	li $v0,2
+	#change the value of $v1=2 which means end the entry of the input
+	li $v1,2
 	#Return
 	jr $ra
 exit: 
